@@ -175,8 +175,6 @@ func (c *Core) Use(args ...interface{}) *Core {
 		switch a := arg.(type) {
 		case string:
 			path = a
-		case Module:
-			RegisterModule(a)
 		case Hand:
 			handlers = append(handlers, a)
 		case handle:
@@ -545,6 +543,10 @@ func (c *Core) init() {
 			Log.Error("Views: %v\n", err)
 		}
 	}
+
+	c.pushMethod(MethodOptions, "/check", func(ctx *Ctx) {
+		ctx.SendString("ok")
+	})
 
 	c.Server = &fasthttp.Server{
 		Logger:             Log,
