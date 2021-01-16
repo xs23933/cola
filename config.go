@@ -10,5 +10,5 @@ var (
 
 // Config gets config by key
 func Config(key string) (interface{}, bool) {
-	return configs.Load(k)
+	return configs.Load(key)
 }

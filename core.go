@@ -1,7 +1,6 @@
 package cola
 
 import (
-	"cola/log"
 	"crypto/tls"
 	"fmt"
 	"net"
@@ -19,8 +18,7 @@ import (
 
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/reuseport"
-	model "github.com/xs23933/cola-model"
-	"gorm.io/gorm"
+	"github.com/xs23933/cola/log"
 )
 
 // Hand Handler
@@ -540,15 +538,6 @@ func (c *Core) init() {
 	}
 
 	Log = log.NewLogger(logOutput, logLevel)
-
-	if c.Options.Db.Driver != "" && c.Options.Db.DSN != "" {
-		db, err := model.New(c.Options.Db.Driver, c.Options.Db.DSN, c.Options.Debug)
-		if err != nil {
-			Log.Error(err.Error())
-			os.Exit(1)
-		}
-		DB = db
-	}
 	if c.Options.Views != nil {
 		if err := c.Views.Load(); err != nil {
 			p, _ := filepath.Abs("./view")
@@ -728,6 +717,4 @@ const (
 var (
 	// Log default global log interface
 	Log log.Interface
-	// Config Global config
-	Config map[string]interface{}
 )
