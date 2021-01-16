@@ -9,7 +9,6 @@ import (
 // Static defines configuration options when defining static assets.
 type Static struct {
 	// When set to true, the server tries minimizing CPU usage by caching compressed files.
-	// This works differently than the github.com/gofiber/compression middleware.
 	// Optional. Default value false
 	Compress bool `json:"compress"`
 
