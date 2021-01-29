@@ -28,7 +28,7 @@ type ModuleInfo struct {
 	New func() Module
 }
 type hasHand interface {
-	Preload(c *Ctx)
+	Preload(*Ctx)
 }
 
 // NewEngine 创建
@@ -42,6 +42,7 @@ func NewEngine(opts *Options) *Engine {
 // Serve 启动服务 如果modules 定义 prefix 为 module. 这里则加载
 func (e *Engine) Serve(port interface{}) error {
 	for _, m := range GetModules("module") {
+		Log.Debug(m.ID)
 		if mod, ok := m.New().(hasHand); ok { // 如果这个模块是handler 注册这个模块
 			e.core.Use(mod)
 		}
@@ -59,7 +60,7 @@ func RegisterModule(inst Module) {
 		Log.Info("module already registered: %s\n", mod.ID)
 		return
 	}
-	modules[string(mod.ID)] = mod
+	modules[mod.ID] = mod
 }
 
 // GetModule 通过ID获得模块
@@ -92,7 +93,7 @@ iterateModules:
 		modParts := strings.Split(id, ".")
 
 		// match only the next level of nesting
-		if len(modParts) != len(scopeParts)+1 {
+		if len(modParts) < len(scopeParts) {
 			continue
 		}
 
