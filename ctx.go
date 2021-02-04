@@ -1,9 +1,11 @@
 package cola
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"html/template"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
@@ -79,6 +81,38 @@ func (c *Ctx) Render(f string, optionalBind ...interface{}) error {
 		c.Error(err.Error(), StatusInternalServerError)
 	}
 	return err
+}
+
+// RenderString Parse template string to string
+//
+// e.g:
+//   ```go
+//   c.RenderString(`<div>Your price: {{ .price }}</div>`, map[string]interface{}{
+//	   "price": 12.5,
+//   })
+//   // or use vars
+//   c.Vars("price", 12.5)
+//   c.RenderString(`<div>Your price: {{ .price }}</div>`)
+//   ```
+func (c *Ctx) RenderString(src string, optionalBind ...interface{}) (string, error) {
+	tpl := template.Must(template.New("").Parse(src))
+	var buf bytes.Buffer
+	var binding interface{}
+	binds := make(map[string]interface{})
+	c.VisitUserValues(func(k []byte, v interface{}) {
+		binds[BytesToString(k)] = v
+	})
+
+	if len(optionalBind) > 0 {
+		binding = optionalBind[0]
+	} else {
+		binding = binds
+	}
+	err := tpl.Execute(&buf, binding)
+	if err != nil {
+		return "", err
+	}
+	return string(buf.Bytes()), err
 }
 
 // depPaths set paths for route recognition and prepared paths for the user,

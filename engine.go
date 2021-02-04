@@ -39,6 +39,11 @@ func NewEngine(opts *Options) *Engine {
 	return engine
 }
 
+// Core 返回 core对象
+func (e *Engine) Core() *Core {
+	return e.core
+}
+
 // Serve 启动服务 如果modules 定义 prefix 为 module. 这里则加载
 func (e *Engine) Serve(port interface{}) error {
 	for _, m := range GetModules("module") {

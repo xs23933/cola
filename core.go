@@ -175,11 +175,13 @@ func (c *Core) Use(args ...interface{}) *Core {
 		switch a := arg.(type) {
 		case string:
 			path = a
-		case Hand:
+		case func(*Ctx):
 			handlers = append(handlers, a)
 		case handle:
 			skip = true
 			c.buildHandles(a)
+		default:
+			Log.Error("Use not support %v\n", a)
 		}
 	}
 	if skip {
@@ -192,8 +194,10 @@ func (c *Core) Use(args ...interface{}) *Core {
 
 func (c *Core) buildHandles(h handle) {
 	h.Init() // call init
+
 	// register routers
 	refCtl := reflect.TypeOf(h)
+	h.SetHandName(refCtl.Elem().String())
 	methodCount := refCtl.NumMethod()
 	valFn := reflect.ValueOf(h)
 	prefix := h.Prefix()
@@ -618,6 +622,7 @@ func (c *Core) handleRequest(fctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	start := time.Now()
 	// Delegate next to handle the request
 	// Find match in stack
 	match, err := c.next(ctx)
@@ -627,6 +632,10 @@ func (c *Core) handleRequest(fctx *fasthttp.RequestCtx) {
 	// Generate ETag if enabled
 	if match && c.ETag {
 		setETag(ctx, false)
+	}
+	if c.Debug {
+		d := time.Now().Sub(start).String()
+		Log.Debug("%s %s %d %s\n", ctx.method, ctx.path, ctx.Response.StatusCode(), d)
 	}
 }
 
