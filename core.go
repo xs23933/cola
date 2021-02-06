@@ -163,6 +163,7 @@ func (c *Core) Serve(args ...interface{}) error {
 	if tc != nil {
 		ln = tls.NewListener(ln, tc)
 	}
+	Log.Info("Listen: %s", addr)
 	return c.Server.Serve(ln)
 }
 

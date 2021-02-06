@@ -31,6 +31,10 @@ type hasHand interface {
 	Preload(*Ctx)
 }
 
+type hasHook interface {
+	LastHook(*Ctx)
+}
+
 // NewEngine 创建
 func NewEngine(opts *Options) *Engine {
 	engine := &Engine{
@@ -47,9 +51,12 @@ func (e *Engine) Core() *Core {
 // Serve 启动服务 如果modules 定义 prefix 为 module. 这里则加载
 func (e *Engine) Serve(port interface{}) error {
 	for _, m := range GetModules("module") {
-		Log.Debug(m.ID)
-		if mod, ok := m.New().(hasHand); ok { // 如果这个模块是handler 注册这个模块
+		mo := m.New()
+		if mod, ok := mo.(hasHand); ok { // 如果这个模块是handler 注册这个模块
 			e.core.Use(mod)
+		}
+		if hook, ok := mo.(hasHook); ok { // 拥有全局Hook
+			e.core.Use(hook.LastHook)
 		}
 	}
 	return e.core.Serve(port)

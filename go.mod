@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/andybalholm/brotli v1.0.1 // indirect
+	github.com/davecgh/go-spew v1.1.1
 	github.com/gorilla/schema v1.2.0
 	github.com/klauspost/compress v1.11.6 // indirect
 	github.com/valyala/fasthttp v1.19.0

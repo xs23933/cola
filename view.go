@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 // Views view interface
@@ -243,6 +245,9 @@ var templateHelpers = template.FuncMap{
 			df = f[0]
 		}
 		return date.Format(df)
+	},
+	"dump": func(src interface{}) interface{} {
+		return spew.Sdump(src)
 	},
 }
 
