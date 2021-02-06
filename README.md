@@ -115,6 +115,28 @@ ok 以上代码就能实现一个简单的网页服务器
 ------
 
 # 更多高级使用方法
+### 传入调试
+```go
+func main(){
+	app := cola.New(&cola.Options{
+		Debug: true, // 修改为debug状态
+	})
+}
+```
+
+### 开启多进程服务模式 (Prefork)
+```go
+func main(){
+	app := cola.New(&cola.Options{
+		Debug: true,
+		Prefork: true,
+	})
+}
+```
+
+### 更多选项详见
+
+cola.Options
 
 ### 针对每个handler 可以设置 方法前缀  
 ```go
