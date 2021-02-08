@@ -195,7 +195,7 @@ func (c *Core) Use(args ...interface{}) *Core {
 
 func (c *Core) buildHandles(h handle) {
 	h.Init() // call init
-
+	h.Core(c)
 	// register routers
 	refCtl := reflect.TypeOf(h)
 	h.SetHandName(refCtl.Elem().String())

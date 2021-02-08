@@ -1,6 +1,7 @@
 package cola
 
 type handle interface {
+	Core(c ...*Core) *Core
 	Prefix() string          // get Prefix
 	Init()                   // init handler
 	Preload(*Ctx)            // before hook
@@ -12,6 +13,15 @@ type handle interface {
 type Handler struct {
 	prefix   string
 	handName string
+	core     *Core
+}
+
+// Core 设置或获得Core
+func (h *Handler) Core(c ...*Core) *Core {
+	if len(c) > 0 {
+		h.core = c[0]
+	}
+	return h.core
 }
 
 // Preload 预处理使用 必须配置 Next结尾
