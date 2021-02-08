@@ -128,9 +128,9 @@ func (ve *ViewEngine) Load() error {
 	ve.Templates.Funcs(ve.helpers)
 
 	directory := ve.directory
-	if ve.theme != "" { // just load theme sub folder
-		directory = filepath.Join(ve.directory, ve.theme)
-	}
+	// if ve.theme != "" { // just load theme sub folder
+	// 	directory = filepath.Join(ve.directory, ve.theme)
+	// }
 
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil { // Return error if exist
@@ -168,7 +168,7 @@ func (ve *ViewEngine) Load() error {
 		}
 
 		if ve.debug {
-			Log.Debug("Views: parsed template: %s\n", name)
+			Log.Debug("Views: load template: %s\n", name)
 		}
 		return err
 	}
@@ -187,6 +187,22 @@ func (ve *ViewEngine) Layout(layout string) *ViewEngine {
 	return ve
 }
 
+func (ve *ViewEngine) lookup(tpl string) *template.Template {
+	if ve.theme != "" {
+		themeTpl := filepath.Join(ve.theme, tpl)
+		tmpl := ve.Templates.Lookup(themeTpl)
+		if tmpl != nil {
+			if ve.debug {
+				Log.Debug("Views: load template: %s%s", themeTpl, ve.ext)
+			}
+			return tmpl
+		}
+	}
+	// the default theme template will be presented if not found
+	Log.Debug("Views: load template: %s%s", tpl, ve.ext)
+	return ve.Templates.Lookup(tpl)
+}
+
 // ExecuteWriter execute render
 func (ve *ViewEngine) ExecuteWriter(out io.Writer, tpl string, binding interface{}, layout ...string) error {
 	if !ve.loaded || ve.reload {
@@ -197,8 +213,7 @@ func (ve *ViewEngine) ExecuteWriter(out io.Writer, tpl string, binding interface
 			return err
 		}
 	}
-
-	tmpl := ve.Templates.Lookup(tpl)
+	tmpl := ve.lookup(tpl)
 	if tmpl == nil {
 		return fmt.Errorf("render: template %s does not exist", tpl)
 	}
