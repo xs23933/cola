@@ -24,19 +24,13 @@ import (
 // Hand Handler
 type Hand func(*Ctx)
 
-// Db db config
-type Db struct {
-	Driver string `yaml:"driver"`
-	DSN    string `yaml:"dsn"`
-}
-
 // Options Global options
 type Options struct {
 	Prefork bool
 
-	*Db `yaml:"db"`
-
 	LogPath string
+
+	Config interface{}
 
 	// Debug Default false
 	Debug bool
@@ -194,8 +188,8 @@ func (c *Core) Use(args ...interface{}) *Core {
 }
 
 func (c *Core) buildHandles(h handle) {
-	h.Init() // call init
 	h.Core(c)
+	h.Init() // call init
 	// register routers
 	refCtl := reflect.TypeOf(h)
 	h.SetHandName(refCtl.Elem().String())

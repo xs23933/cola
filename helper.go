@@ -562,6 +562,7 @@ var Methods = []string{
 	MethodOptions,
 	MethodTrace,
 	MethodPatch,
+	methodUse,
 }
 
 // HTTP methods and their unique INTs
@@ -585,6 +586,8 @@ func methodInt(s string) int {
 		return 7
 	case MethodPatch:
 		return 8
+	case methodUse:
+		return 9
 	default:
 		return -1
 	}
