@@ -486,6 +486,35 @@ func (c *Ctx) ClearCookie(key ...string) {
 	})
 }
 
+// ClearCookies clear cookie set default path /
+//   if ClearCookie failed.
+// If no key is provided it expires all cookies that came with the request.
+func (c *Ctx) ClearCookies(key ...string) {
+	if len(key) > 0 {
+		for i := range key {
+			c.DelCookie(key[i], "/")
+		}
+		return
+	}
+	c.Request.Header.VisitAllCookie(func(k, v []byte) {
+		c.Response.Header.DelClientCookieBytes(k)
+	})
+}
+
+// DelCookie delete cookie with path
+func (c *Ctx) DelCookie(k string, path ...string) {
+	c.Response.Header.DelClientCookie(k)
+	c.Response.Header.DelCookie(k)
+	fc := fasthttp.AcquireCookie()
+	fc.SetKey(k)
+	fc.SetExpire(fasthttp.CookieExpireDelete)
+	if len(path) > 0 {
+		fc.SetPath(path[0])
+	}
+	c.Response.Header.SetCookie(fc)
+	fasthttp.ReleaseCookie(fc)
+}
+
 // Cookie sets a cookie by passing a cookie struct.
 func (c *Ctx) Cookie(cookie *Cookie) {
 	fc := fasthttp.AcquireCookie()
