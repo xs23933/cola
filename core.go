@@ -277,6 +277,13 @@ func (c *Core) pushMethod(method, pathRaw string, handlers ...Hand) *Core {
 	c.addRoute(method, &route)
 	return nil
 }
+
+// Static register a new route with path prefix to serve static files from the provided root directory.
+func (c *Core) Static(prefix, root string, config ...Static) *Core {
+	c.pushStatic(prefix, root, config...)
+	return c
+}
+
 func (c *Core) pushStatic(prefix, root string, config ...Static) *Core {
 	// For security we want to restrict to the current work directory.
 	if len(root) == 0 {
