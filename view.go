@@ -1,6 +1,7 @@
 package cola
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"io"
@@ -83,6 +84,18 @@ func NewView(directory, ext string, args ...interface{}) *ViewEngine {
 	}
 	engine.AddFunc(engine.layoutFunc, func() error {
 		return fmt.Errorf("layout called unexpectedly")
+	})
+	engine.AddFunc("include", func(partName string, bind ...interface{}) (template.HTML, error) {
+		var (
+			binding interface{}
+			buf     bytes.Buffer
+		)
+		if len(bind) > 0 {
+			binding = bind[0]
+		}
+		tmpl := engine.lookup(partName)
+		err := tmpl.Execute(&buf, binding)
+		return template.HTML(buf.String()), err
 	})
 	return engine
 }
@@ -222,7 +235,7 @@ func (ve *ViewEngine) ExecuteWriter(out io.Writer, tpl string, binding interface
 		layoutTpl = layout[0]
 	}
 	if len(layoutTpl) > 0 {
-		lay := ve.Templates.Lookup(layoutTpl)
+		lay := ve.lookup(layoutTpl) // ve.Templates.Lookup(layoutTpl)
 		if lay == nil {
 			return fmt.Errorf("render: layout %s does not exist", layoutTpl)
 		}
