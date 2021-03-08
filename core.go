@@ -266,7 +266,7 @@ func (c *Core) pushMethod(method, pathRaw string, handlers ...Hand) *Core {
 		Handlers: handlers,
 	}
 
-	Log.Debug("%s: %s", method, route.Path)
+	Log.D("%s: %s", method, route.Path)
 
 	if isUse {
 		for _, m := range Methods {
@@ -637,7 +637,7 @@ func (c *Core) handleRequest(fctx *fasthttp.RequestCtx) {
 	}
 	if c.Debug {
 		d := time.Now().Sub(start).String()
-		Log.Debug("%s %s %d %s\n", ctx.method, ctx.path, ctx.Response.StatusCode(), d)
+		Log.D("%s %s %d %s\n", ctx.method, ctx.path, ctx.Response.StatusCode(), d)
 	}
 }
 

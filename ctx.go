@@ -311,7 +311,7 @@ func (c *Ctx) Vars(key string, value ...interface{}) (val interface{}) {
 // MultipartForm parse form entries from binary.
 // This returns a map[string][]string, so given a key the value will be a string slice.
 func (c *Ctx) MultipartForm() (*multipart.Form, error) {
-	return c.MultipartForm()
+	return c.RequestCtx.MultipartForm()
 }
 
 // OriginalURL contains the original request URL.
@@ -596,7 +596,7 @@ func (c *Ctx) ReadBody(out interface{}) error {
 
 // FormFile returns the first file by key from a MultipartForm.
 func (c *Ctx) FormFile(key string) (*multipart.FileHeader, error) {
-	return c.FormFile(key)
+	return c.RequestCtx.FormFile(key)
 }
 
 // FormValue returns the first value by key from a MultipartForm.

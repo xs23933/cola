@@ -74,6 +74,7 @@ type Config struct {
 type Interface interface {
 	LogMode(LogLevel) Interface
 	Debug(string, ...interface{})
+	D(string, ...interface{})
 	Printf(string, ...interface{})
 	Info(string, ...interface{})
 	Warn(string, ...interface{})
@@ -104,6 +105,7 @@ func New(writer Writer, config Config) Interface {
 	var (
 		debugStr     = "%s\n[debug] "
 		infoStr      = "%s\n[info] "
+		logStr       = "%s\n[debug] "
 		warnStr      = "%s\n[warn] "
 		errStr       = "%s\n[error] "
 		traceStr     = "%s\n[%.3fms] [rows:%v] %s"
@@ -113,7 +115,8 @@ func New(writer Writer, config Config) Interface {
 
 	if config.Colorful {
 		debugStr = Cyan + "%s\n" + Reset + Green + "[debug] " + Reset
-		infoStr = Green + "%s\n" + Reset + Green + "[info] " + Reset
+		infoStr = Green + Reset + Green + "[info] " + Reset
+		logStr = Green + Reset + Green + "[debug] " + Reset
 		warnStr = BlueBold + "%s\n" + Reset + Magenta + "[warn] " + Reset
 		errStr = Magenta + "%s\n" + Reset + Red + "[error] " + Reset
 		traceStr = Green + "%s\n" + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
@@ -126,6 +129,7 @@ func New(writer Writer, config Config) Interface {
 		Config:       config,
 		debugStr:     debugStr,
 		infoStr:      infoStr,
+		logStr:       logStr,
 		warnStr:      warnStr,
 		errStr:       errStr,
 		traceStr:     traceStr,
@@ -137,8 +141,8 @@ func New(writer Writer, config Config) Interface {
 type logger struct {
 	Writer
 	Config
-	debugStr, infoStr, warnStr, errStr  string
-	traceStr, traceErrStr, traceWarnStr string
+	debugStr, infoStr, logStr, warnStr, errStr string
+	traceStr, traceErrStr, traceWarnStr        string
 }
 
 // LogMode log mode
@@ -157,8 +161,15 @@ func (l logger) Debug(msg string, data ...interface{}) {
 
 // Info print info
 func (l logger) Info(msg string, data ...interface{}) {
-	if l.LogLevel >= LevelInfo {
-		l.Printf(l.infoStr+msg, append([]interface{}{FileWithLineNum()}, data...)...)
+	if l.LogLevel >= LevelWarn {
+		l.Printf(l.infoStr+msg, data...)
+	}
+}
+
+// Log print Log
+func (l logger) D(msg string, data ...interface{}) {
+	if l.LogLevel >= LevelDebug {
+		l.Printf(l.logStr+msg, data...)
 	}
 }
 
