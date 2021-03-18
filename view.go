@@ -181,7 +181,7 @@ func (ve *ViewEngine) Load() error {
 		}
 
 		if ve.debug {
-			Log.Debug("Views: load template: %s\n", name)
+			Log.D("Views: load template: %s\n", name)
 		}
 		return err
 	}
