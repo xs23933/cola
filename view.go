@@ -2,6 +2,7 @@ package cola
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -20,6 +21,7 @@ type Views interface {
 	Theme(string)
 	Load() error
 	ExecuteWriter(io.Writer, string, interface{}, ...string) error
+	AddFunc(name string, fn interface{}) *ViewEngine
 }
 
 // ViewEngine html template engine
@@ -47,6 +49,7 @@ type ViewEngine struct {
 	Templates *template.Template
 	// http.FileSystem supports embedded files
 	fileSystem http.FileSystem
+	binding    interface{}
 }
 
 // NewView Create view engine
@@ -85,9 +88,21 @@ func NewView(directory, ext string, args ...interface{}) *ViewEngine {
 	engine.AddFunc(engine.layoutFunc, func() error {
 		return fmt.Errorf("layout called unexpectedly")
 	})
+	engine.AddFunc("parse", func(src string, bind ...interface{}) (template.HTML, error) {
+		var (
+			binding = engine.binding
+			buf     bytes.Buffer
+		)
+		if len(bind) > 0 {
+			binding = bind[0]
+		}
+		tmpl := template.Must(template.New("").Parse(src))
+		err := tmpl.Execute(&buf, binding)
+		return template.HTML(buf.String()), err
+	})
 	engine.AddFunc("include", func(partName string, bind ...interface{}) (template.HTML, error) {
 		var (
-			binding interface{}
+			binding = engine.binding
 			buf     bytes.Buffer
 		)
 		if len(bind) > 0 {
@@ -234,6 +249,7 @@ func (ve *ViewEngine) ExecuteWriter(out io.Writer, tpl string, binding interface
 	if len(layout) > 0 {
 		layoutTpl = layout[0]
 	}
+	ve.binding = binding
 	if len(layoutTpl) > 0 {
 		lay := ve.lookup(layoutTpl) // ve.Templates.Lookup(layoutTpl)
 		if lay == nil {
@@ -253,6 +269,10 @@ var templateHelpers = template.FuncMap{
 	// Replaces newlines with <br>
 	"nl2br": func(text string) template.HTML {
 		return template.HTML(strings.Replace(template.HTMLEscapeString(text), "\n", "<br>", -1))
+	},
+	"rawjson": func(src interface{}) template.HTML {
+		v, _ := json.MarshalIndent(src, "", "  ")
+		return template.HTML(v)
 	},
 	// Skips sanitation on the parameter.  Do not use with dynamic data.
 	"raw": func(text string) template.HTML {
@@ -276,6 +296,13 @@ var templateHelpers = template.FuncMap{
 	},
 	"dump": func(src interface{}) interface{} {
 		return spew.Sdump(src)
+	},
+	// 设置默认值
+	"default": func(src, def interface{}) interface{} {
+		if src != nil {
+			return src
+		}
+		return def
 	},
 }
 

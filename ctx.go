@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"html/template"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
@@ -362,6 +363,20 @@ func (c *Ctx) Path(override ...string) string {
 // SaveFile saves any multipart file to disk.
 func (c *Ctx) SaveFile(fileheader *multipart.FileHeader, path string) error {
 	return fasthttp.SaveMultipartFile(fileheader, path)
+}
+
+// FileBuf Read request file
+func (c *Ctx) FileBuf(fh *multipart.FileHeader) ([]byte, error) {
+	var (
+		buf bytes.Buffer
+	)
+	f, err := fh.Open()
+	if err != nil {
+		return buf.Bytes(), err
+	}
+
+	_, err = io.Copy(&buf, f)
+	return buf.Bytes(), err
 }
 
 // Send sets the HTTP response body without copying it.
