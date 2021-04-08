@@ -374,7 +374,6 @@ func (c *Ctx) FileBuf(fh *multipart.FileHeader) ([]byte, error) {
 	if err != nil {
 		return buf.Bytes(), err
 	}
-
 	_, err = io.Copy(&buf, f)
 	return buf.Bytes(), err
 }
