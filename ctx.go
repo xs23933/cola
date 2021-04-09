@@ -39,6 +39,7 @@ type Ctx struct {
 	matched             bool              // Non use route matched
 	route               *Route
 	baseURI             string
+	theme               string
 }
 
 func (c *Ctx) init(ctx *fasthttp.RequestCtx) {
@@ -53,6 +54,11 @@ func (c *Ctx) init(ctx *fasthttp.RequestCtx) {
 	c.matched = false
 	c.baseURI = ""
 	c.depPaths()
+}
+
+// ViewTheme 使用模版风格
+func (c *Ctx) ViewTheme(theme string) {
+	c.theme = theme
 }
 
 // Render Render View Engine
@@ -76,8 +82,12 @@ func (c *Ctx) Render(f string, optionalBind ...interface{}) error {
 		return err
 	}
 
+	if c.theme != "" {
+		c.Core.Views.DoTheme(c.theme)
+	}
+
 	c.Response.Header.SetContentType(MIMETextHTMLCharsetUTF8)
-	err = c.Core.Options.Views.ExecuteWriter(c.RequestCtx.Response.BodyWriter(), f, binding)
+	err = c.Core.Views.ExecuteWriter(c.RequestCtx.Response.BodyWriter(), f, binding)
 	if err != nil {
 		c.Error(err.Error(), StatusInternalServerError)
 	}

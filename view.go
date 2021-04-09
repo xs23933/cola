@@ -19,6 +19,7 @@ import (
 // Views view interface
 type Views interface {
 	Theme(string)
+	DoTheme(string)
 	Load() error
 	ExecuteWriter(io.Writer, string, interface{}, ...string) error
 	AddFunc(name string, fn interface{}) *ViewEngine
@@ -141,6 +142,11 @@ func (ve *ViewEngine) Delims(l, r string) *ViewEngine {
 func (ve *ViewEngine) Theme(theme string) {
 	ve.theme = theme
 	ve.loaded = false
+}
+
+// DoTheme 调用已装载的主题
+func (ve *ViewEngine) DoTheme(theme string) {
+	ve.theme = theme
 }
 
 // Load load tmpl file
