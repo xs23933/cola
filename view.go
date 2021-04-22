@@ -227,7 +227,7 @@ func (ve *ViewEngine) lookup(tpl string) *template.Template {
 		tmpl := ve.Templates.Lookup(themeTpl)
 		if tmpl != nil {
 			if ve.debug {
-				Log.Debug("Views: load template: %s%s", themeTpl, ve.ext)
+				Log.D("Views: load template: %s%s", themeTpl, ve.ext)
 			}
 			return tmpl
 		}
@@ -236,14 +236,14 @@ func (ve *ViewEngine) lookup(tpl string) *template.Template {
 			tmpl = ve.Templates.Lookup(themeTpl)
 			if tmpl != nil {
 				if ve.debug {
-					Log.Debug("Views: load template: %s%s", themeTpl, ve.ext)
+					Log.D("Views: load template: %s%s", themeTpl, ve.ext)
 				}
 				return tmpl
 			}
 		}
 	}
 	// the default theme template will be presented if not found
-	Log.Debug("Views: load template: %s%s", tpl, ve.ext)
+	Log.D("Views: load template: %s%s", tpl, ve.ext)
 	return ve.Templates.Lookup(tpl)
 }
 
