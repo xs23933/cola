@@ -545,7 +545,7 @@ func (c *Core) init() {
 	if c.Options.Views != nil {
 		if err := c.Views.Load(); err != nil {
 			p, _ := filepath.Abs("./view")
-			Log.Debug("Views: %v\n", p)
+			Log.D("Views: %v\n", p)
 			Log.Error("Views: %v\n", err)
 		}
 	}

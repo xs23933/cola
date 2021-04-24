@@ -1,5 +1,7 @@
 package cola
 
+type Map map[string]interface{}
+
 type handle interface {
 	Core(c ...*Core) *Core
 	Prefix() string          // get Prefix
