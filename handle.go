@@ -1,5 +1,6 @@
 package cola
 
+// Map map[string]interface{}
 type Map map[string]interface{}
 
 type handle interface {
