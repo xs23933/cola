@@ -205,6 +205,7 @@ func (c *Core) buildHandles(h handle) {
 				if strings.HasPrefix(name, ToLower(method)) {
 					name = fixURI(prefix, name, method)
 					c.pushMethod(method, name, fn)
+					h.PushPath(method, name)
 				}
 			}
 		}

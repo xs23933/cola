@@ -12,6 +12,7 @@ type handle interface {
 	Preload(*Ctx)            // before hook
 	SetHandName(name string) // get handlerName
 	HandName() string        // 获得名称
+	PushPath(string, string) // Push Path
 }
 
 // Handler Sample Handler
