@@ -1,5 +1,7 @@
 package cola
 
+import "fmt"
+
 // Map map[string]interface{}
 type Map map[string]interface{}
 
@@ -17,6 +19,11 @@ type Handler struct {
 	prefix   string
 	handName string
 	core     *Core
+	Handlers map[string]struct{}
+}
+
+func (h *Handler) PushPath(method, path string) {
+	h.Handlers[fmt.Sprintf("%s|%s", method, path)] = struct{}{}
 }
 
 // Core 设置或获得Core
@@ -24,6 +31,7 @@ func (h *Handler) Core(c ...*Core) *Core {
 	if len(c) > 0 {
 		h.core = c[0]
 	}
+	h.Handlers = make(map[string]struct{})
 	return h.core
 }
 
