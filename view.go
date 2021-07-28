@@ -247,6 +247,10 @@ func (ve *ViewEngine) lookup(tpl string) *template.Template {
 	return ve.Templates.Lookup(tpl)
 }
 
+func (ve *ViewEngine) Execute(out io.Writer, tpl string, binding interface{}, layout ...string) error {
+	return nil
+}
+
 // ExecuteWriter execute render
 func (ve *ViewEngine) ExecuteWriter(out io.Writer, tpl string, binding interface{}, layout ...string) error {
 	if !ve.loaded || ve.reload {

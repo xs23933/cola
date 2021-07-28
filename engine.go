@@ -35,6 +35,10 @@ type hasHook interface {
 	LastHook(*Ctx)
 }
 
+type hasStart interface {
+	Start()
+}
+
 // NewEngine 创建
 func NewEngine(opts *Options) *Engine {
 	engine := &Engine{
@@ -52,6 +56,9 @@ func (e *Engine) Core() *Core {
 func (e *Engine) Serve(port interface{}) error {
 	for _, m := range GetModules("module") {
 		mo := m.New()
+		if mod, ok := mo.(hasStart); ok { // 独立启动程序, 那就启动
+			mod.Start()
+		}
 		if mod, ok := mo.(hasHand); ok { // 如果这个模块是handler 注册这个模块
 			e.core.Use(mod)
 		}
