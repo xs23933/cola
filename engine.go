@@ -2,19 +2,24 @@ package cola
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 )
 
 // Engine Module engine
 type Engine struct {
 	core *Core
+	quit chan os.Signal
 }
 
 var (
 	modules   = make(map[string]ModuleInfo)
 	modulesMu sync.RWMutex
+	modexit   = make([]hasExit, 0)
 )
 
 // Module interface
@@ -36,14 +41,21 @@ type hasHook interface {
 }
 
 type hasStart interface {
-	Start()
+	Start(*Engine)
+}
+
+type hasExit interface {
+	Exit()
 }
 
 // NewEngine 创建
 func NewEngine(opts *Options) *Engine {
 	engine := &Engine{
 		core: New(opts),
+		quit: make(chan os.Signal, 1),
 	}
+	signal.Notify(engine.quit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
+	go engine.looper()
 	return engine
 }
 
@@ -54,10 +66,14 @@ func (e *Engine) Core() *Core {
 
 // Serve 启动服务 如果modules 定义 prefix 为 module. 这里则加载
 func (e *Engine) Serve(port interface{}) error {
+	defer e.Exit()
 	for _, m := range GetModules("module") {
 		mo := m.New()
+		if mod, ok := mo.(hasExit); ok {
+			modexit = append(modexit, mod)
+		}
 		if mod, ok := mo.(hasStart); ok { // 独立启动程序, 那就启动
-			mod.Start()
+			mod.Start(e)
 		}
 		if mod, ok := mo.(hasHand); ok { // 如果这个模块是handler 注册这个模块
 			e.core.Use(mod)
@@ -67,6 +83,21 @@ func (e *Engine) Serve(port interface{}) error {
 		}
 	}
 	return e.core.Serve(port)
+}
+
+func (e *Engine) looper() {
+	for {
+		select {
+		case <-e.quit:
+			e.core.Server.Shutdown()
+		}
+	}
+}
+
+func (e *Engine) Exit() {
+	for _, m := range modexit {
+		m.Exit()
+	}
 }
 
 // RegisterModule 注册模块
