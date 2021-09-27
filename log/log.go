@@ -77,7 +77,7 @@ type Interface interface {
 	LogMode(LogLevel) Interface
 	Debug(string, ...interface{})
 	D(string, ...interface{})
-	Dump(args ...Interface{})
+	Dump(args ...interface{})
 	Printf(string, ...interface{})
 	Info(string, ...interface{})
 	Warn(string, ...interface{})
@@ -176,7 +176,7 @@ func (l logger) D(msg string, data ...interface{}) {
 	}
 }
 
-func (l logger) Dump(dat ...Interface{}) {
+func (l logger) Dump(dat ...interface{}) {
 	spew.Dump(dat...)
 }
 

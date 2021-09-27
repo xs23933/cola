@@ -51,7 +51,7 @@ type hasExit interface {
 // NewEngine 创建
 func NewEngine(opts ...interface{}) *Engine {
 	engine := &Engine{
-		core: New(opts),
+		core: New(opts...),
 		quit: make(chan os.Signal, 1),
 	}
 	signal.Notify(engine.quit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)

@@ -39,7 +39,8 @@ type Options struct {
 	// Debug Default false
 	Debug bool
 
-	Views Views
+	Views    Views
+	viewRoot string
 
 	// Case sensitive routing, all to lowercase
 	CaseSensitive bool
@@ -549,7 +550,7 @@ func (c *Core) init() {
 	Log = log.NewLogger(logOutput, logLevel)
 	if c.Options.Views != nil {
 		if err := c.Views.Load(); err != nil {
-			p, _ := filepath.Abs(c.Options.Views)
+			p, _ := filepath.Abs(c.Options.viewRoot)
 			Log.D("Views: %v\n", p)
 			Log.Error("Views: %v\n", err)
 		}
@@ -643,7 +644,8 @@ func (c *Core) handleRequest(fctx *fasthttp.RequestCtx) {
 		setETag(ctx, false)
 	}
 	if c.Debug {
-		d := time.Now().Sub(start).String()
+		d := time.Since(start)
+		// d := time.Now().Sub(start).String()
 		Log.D("%s %s %d %s\n", ctx.method, ctx.path, ctx.Response.StatusCode(), d)
 	}
 }
@@ -682,24 +684,27 @@ func New(opts ...interface{}) *Core {
 		}
 	}
 
-	if conf, ok := c.Config.(Map); ok { // haved config
-		if dbg, ok := conf["debug"].(bool); ok {
-			c.Debug = dbg
-		}
-		if check, ok := conf["check"].(bool); ok {
-			c.UseCheck = true
-		}
-		if views, ok := conf["views"].(string); ok {
-			view := NewView(views, ".html", c.Debug).Layout("layout")
-			if c.Layout != "" {
-				view = view.Layout(c.Layout)
+	if c.Options != nil {
+		if conf, ok := c.Config.(Map); ok { // haved config
+			if dbg, ok := conf["debug"].(bool); ok {
+				c.Debug = dbg
 			}
-			c.Views = view
-		}
+			if check, ok := conf["check"].(bool); ok {
+				c.UseCheck = check
+			}
+			if views, ok := conf["views"].(string); ok {
+				c.viewRoot = views
+				view := NewView(views, ".html", c.Debug).Layout("layout")
+				if c.Layout != "" {
+					view = view.Layout(c.Layout)
+				}
+				c.Views = view
+			}
 
-		if dsn, ok := conf["dsn"].(string); ok { // haved dsn
-			if _, err := NewModel(dsn, c.Debug); err != nil {
-				Log.Error(err.Error())
+			if dsn, ok := conf["dsn"].(string); ok { // haved dsn
+				if _, err := NewModel(dsn, c.Debug); err != nil {
+					Log.Error(err.Error())
+				}
 			}
 		}
 	}

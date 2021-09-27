@@ -40,7 +40,7 @@ func NewModel(dsn string, debug bool) (*DB, error) {
 	if debug {
 		db = db.Debug()
 	}
-	Conn = db
+	conn = db
 	return db, err
 }
 
@@ -169,7 +169,7 @@ func Where(whr *map[string]interface{}, db ...*DB) (*DB, int, int) {
 	if len(db) > 0 {
 		tx = db[0]
 	} else {
-		tx = Conn
+		tx = conn
 	}
 
 	wher := *whr
@@ -231,8 +231,16 @@ func Where(whr *map[string]interface{}, db ...*DB) (*DB, int, int) {
 	return tx, pos, lmt
 }
 
+func Conn() *DB {
+	if conn != nil {
+		return conn
+	}
+	panic("database connect failed")
+	return nil
+}
+
 var (
-	Conn *DB
+	conn *DB
 )
 
 type DB = gorm.DB
