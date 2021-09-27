@@ -487,8 +487,6 @@ func (c *Core) prefork(addr string, tlsConfig *tls.Config) (err error) {
 		}
 	}()
 
-	var pids []string
-
 	for i := 0; i < max; i++ {
 		cmd := exec.Command(os.Args[0], os.Args[1:]...)
 		cmd.Stdout = os.Stdout
@@ -502,7 +500,6 @@ func (c *Core) prefork(addr string, tlsConfig *tls.Config) (err error) {
 
 		pid := cmd.Process.Pid
 		childs[pid] = cmd
-		pids = append(pids, strconv.Itoa(pid))
 
 		go func() {
 			channel <- child{pid, cmd.Wait()}
