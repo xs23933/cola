@@ -28,10 +28,11 @@ var (
 
 // LoadConfigFile load yml config
 func LoadConfigFile(confFile string) map[string]interface{} {
-	conf := make(map[string]interface{}, 0)
+	conf := make(map[string]interface{})
 	buf, err := ioutil.ReadFile(confFile)
 	if err != nil {
 		conf["debug"] = true
+		conf["listen"] = 8080
 		yml, _ := yaml.Marshal(conf)
 		ioutil.WriteFile(confFile, yml, 0644)
 	} else if err = yaml.Unmarshal(buf, &conf); err != nil {

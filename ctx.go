@@ -123,7 +123,7 @@ func (c *Ctx) RenderString(src string, optionalBind ...interface{}) (string, err
 	if err != nil {
 		return "", err
 	}
-	return string(buf.Bytes()), err
+	return buf.String(), err
 }
 
 // depPaths set paths for route recognition and prepared paths for the user,
