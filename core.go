@@ -32,6 +32,10 @@ type Options struct {
 
 	Config interface{}
 
+	UseCheck bool
+
+	Layout string
+
 	// Debug Default false
 	Debug bool
 
@@ -545,15 +549,17 @@ func (c *Core) init() {
 	Log = log.NewLogger(logOutput, logLevel)
 	if c.Options.Views != nil {
 		if err := c.Views.Load(); err != nil {
-			p, _ := filepath.Abs("./view")
+			p, _ := filepath.Abs(c.Options.Views)
 			Log.D("Views: %v\n", p)
 			Log.Error("Views: %v\n", err)
 		}
 	}
 
-	c.pushMethod(MethodOptions, "/check", func(ctx *Ctx) {
-		ctx.SendString("ok")
-	})
+	if c.Options.UseCheck {
+		c.pushMethod(MethodOptions, "/check", func(ctx *Ctx) {
+			ctx.SetStatusCode(StatusNoContent)
+		})
+	}
 
 	c.Server = &fasthttp.Server{
 		Logger:             Log,
@@ -673,6 +679,28 @@ func New(opts ...interface{}) *Core {
 		switch v := opt.(type) {
 		case *Options:
 			c.Options = v
+		}
+	}
+
+	if conf, ok := c.Config.(Map); ok { // haved config
+		if dbg, ok := conf["debug"].(bool); ok {
+			c.Debug = dbg
+		}
+		if check, ok := conf["check"].(bool); ok {
+			c.UseCheck = true
+		}
+		if views, ok := conf["views"].(string); ok {
+			view := NewView(views, ".html", c.Debug).Layout("layout")
+			if c.Layout != "" {
+				view = view.Layout(c.Layout)
+			}
+			c.Views = view
+		}
+
+		if dsn, ok := conf["dsn"].(string); ok { // haved dsn
+			if _, err := NewModel(dsn, c.Debug); err != nil {
+				Log.Error(err.Error())
+			}
 		}
 	}
 

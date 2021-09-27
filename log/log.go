@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 var sourceDir string
@@ -75,6 +77,7 @@ type Interface interface {
 	LogMode(LogLevel) Interface
 	Debug(string, ...interface{})
 	D(string, ...interface{})
+	Dump(args ...Interface{})
 	Printf(string, ...interface{})
 	Info(string, ...interface{})
 	Warn(string, ...interface{})
@@ -171,6 +174,10 @@ func (l logger) D(msg string, data ...interface{}) {
 	if l.LogLevel >= LevelDebug {
 		l.Printf(l.logStr+msg, data...)
 	}
+}
+
+func (l logger) Dump(dat ...Interface{}) {
+	spew.Dump(dat...)
 }
 
 // Warn print warn messages

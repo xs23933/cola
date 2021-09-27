@@ -49,7 +49,7 @@ type hasExit interface {
 }
 
 // NewEngine 创建
-func NewEngine(opts *Options) *Engine {
+func NewEngine(opts ...interface{}) *Engine {
 	engine := &Engine{
 		core: New(opts),
 		quit: make(chan os.Signal, 1),
