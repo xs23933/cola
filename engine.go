@@ -54,7 +54,7 @@ func NewEngine(opts ...interface{}) *Engine {
 		core: New(opts...),
 		quit: make(chan os.Signal, 1),
 	}
-	signal.Notify(engine.quit, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
+	signal.Notify(engine.quit, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
 	go engine.looper()
 	return engine
 }
@@ -86,12 +86,16 @@ func (e *Engine) Serve(port interface{}) error {
 }
 
 func (e *Engine) looper() {
-	for {
-		select {
-		case <-e.quit:
-			e.core.Server.Shutdown()
-		}
+	for range e.quit {
+		Log.D("Shutdown")
+		e.core.Server.Shutdown()
 	}
+	// for {
+	// 	select {
+	// 	case <-e.quit:
+
+	// 	}
+	// }
 }
 
 func (e *Engine) Exit() {
