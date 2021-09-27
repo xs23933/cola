@@ -2,9 +2,6 @@ package cola
 
 import "fmt"
 
-// Map map[string]interface{}
-type Map map[string]interface{}
-
 type handle interface {
 	Core(c ...*Core) *Core
 	Prefix() string          // get Prefix
