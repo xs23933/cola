@@ -338,15 +338,9 @@ func init() {
 }
 
 func toNamer(name string) string {
-	const (
-		lower = false
-		upper = true
-	)
-
 	if name == "" {
 		return ""
 	}
-
 	var (
 		value                                    = commonInitialismsReplacer.Replace(name)
 		buf                                      = bytes.NewBufferString("")
@@ -358,8 +352,8 @@ func toNamer(name string) string {
 		nextNumber = bool(value[i+1] >= '0' && value[i+1] <= '9')
 
 		if i > 0 {
-			if currCase == upper {
-				if lastCase == upper && (nextCase == upper || nextNumber == upper) {
+			if currCase {
+				if lastCase && (nextCase || nextNumber) {
 					buf.WriteRune(v)
 				} else {
 					if value[i-1] != '/' && value[i+1] != '/' {
@@ -369,12 +363,12 @@ func toNamer(name string) string {
 				}
 			} else {
 				buf.WriteRune(v)
-				if i == len(value)-2 && (nextCase == upper && nextNumber == lower) {
+				if i == len(value)-2 && (nextCase && !nextNumber) {
 					buf.WriteRune('/')
 				}
 			}
 		} else {
-			currCase = upper
+			currCase = true
 			buf.WriteRune(v)
 		}
 		lastCase = currCase
